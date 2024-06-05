@@ -1,10 +1,8 @@
 package com.marko.petstore.service;
 
 import com.marko.petstore.model.Pet;
-import com.marko.petstore.model.PetType;
 import com.marko.petstore.model.User;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface PetService {

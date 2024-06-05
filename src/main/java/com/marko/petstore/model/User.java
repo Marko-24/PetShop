@@ -1,12 +1,13 @@
 package com.marko.petstore.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode
 @Entity
 @Table(name = "storeUsers")
 public class User {
@@ -28,5 +29,16 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.budget = budget;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", budget=" + budget +
+                '}';
     }
 }

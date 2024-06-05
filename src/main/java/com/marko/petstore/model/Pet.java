@@ -1,53 +1,47 @@
 package com.marko.petstore.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode
 @Entity
-public class Pet {
+public abstract class Pet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    protected Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private User owner;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    protected User owner;
 
-    private String name;
+    protected String name;
 
-    @Enumerated(EnumType.STRING)
-    private PetType petType;
+    protected String description;
 
-    private String description;
+    protected LocalDate dateOfBirth;
 
-    private LocalDate dateOfBirth;
+    protected int price;
 
-    private int price;
-
-    private int rating;
-
-    public Pet(User owner, String name, PetType petType, String description, LocalDate dateOfBirth, int price) {
-        this.owner = owner;
-        this.name = name;
-        this.petType = petType;
-        this.description = description;
-        this.dateOfBirth = dateOfBirth;
-        this.price = price;
+    public int calculatePrice() {
+        return Period.between(this.dateOfBirth, LocalDate.now()).getYears();
     }
 
-    public Pet(User owner, String name, PetType petType, String description, LocalDate dateOfBirth, int price, int rating) {
-        this.owner = owner;
-        this.name = name;
-        this.petType = petType;
-        this.description = description;
-        this.dateOfBirth = dateOfBirth;
-        this.price = price;
-        this.rating = rating;
+    @Override
+    public String toString() {
+        return "Pet{" +
+                "id=" + id +
+                ", owner=" + (owner != null ? owner.getFirstName() + " " + owner.getLastName() : "none") +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", price=" + price +
+                '}';
     }
 }

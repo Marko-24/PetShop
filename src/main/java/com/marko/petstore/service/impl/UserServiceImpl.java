@@ -2,7 +2,6 @@ package com.marko.petstore.service.impl;
 
 import com.marko.petstore.model.User;
 import com.marko.petstore.model.exceptions.InvalidUserIdException;
-import com.marko.petstore.repository.PetRepository;
 import com.marko.petstore.repository.UserRepository;
 import com.marko.petstore.service.UserService;
 import lombok.RequiredArgsConstructor;

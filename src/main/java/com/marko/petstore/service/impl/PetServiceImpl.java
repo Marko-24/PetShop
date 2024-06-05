@@ -1,17 +1,15 @@
 package com.marko.petstore.service.impl;
 
+import com.marko.petstore.model.Cat;
+import com.marko.petstore.model.Dog;
 import com.marko.petstore.model.Pet;
-import com.marko.petstore.model.PetType;
 import com.marko.petstore.model.User;
 import com.marko.petstore.model.exceptions.InvalidPetIdException;
 import com.marko.petstore.repository.PetRepository;
 import com.marko.petstore.service.PetService;
-import com.marko.petstore.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,18 +33,16 @@ public class PetServiceImpl implements PetService {
     public List<Pet> createPet(List<Pet> pets) {
         List<Pet> createdPets = new ArrayList<>();
         for (Pet pet : pets) {
-            if (pet.getPetType() == PetType.Cat) {
-                pet.setPrice(1 * Period.between(pet.getDateOfBirth(), LocalDate.now()).getYears());
-                createdPets.add(petRepository.save(pet));
-            } else if (pet.getPetType() == PetType.Dog) {
-                boolean ratingSet = pet.getRating() >= 0;
-                if (!ratingSet || pet.getRating() > 10) {
+            if (pet instanceof Cat cat) {
+                cat.setPrice(cat.calculatePrice());
+                createdPets.add(petRepository.save(cat));
+            } else if (pet instanceof Dog dog) {
+                boolean ratingSet = dog.getRating() >= 0;
+                if (!ratingSet || dog.getRating() > 10) {
                     throw new IllegalArgumentException("Invalid rating for dog.");
                 }
-                int basePrice = 1 * Period.between(pet.getDateOfBirth(), LocalDate.now()).getYears();
-                int ratingPrice = pet.getRating();
-                pet.setPrice(basePrice + ratingPrice);
-                createdPets.add(petRepository.save(pet));
+                dog.setPrice(dog.calculatePrice());
+                createdPets.add(petRepository.save(dog));
             }
         }
         return createdPets;
@@ -54,40 +50,23 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public boolean buy(User user, Pet pet) {
-        if (pet.getPetType() == PetType.Cat) {
-            return buyCat(user, pet);
-        } else if (pet.getPetType() == PetType.Dog) {
-            return buyDog(user, pet);
-        } else {
-            System.out.println("Unknown pet type.");
-            return false;
-        }
-    }
-
-    private boolean buyCat(User user, Pet pet) {
-        int budgetDifference = user.getBudget() - pet.getPrice();
-        if (budgetDifference >= 0 && pet.getOwner() == null) {
-            user.setBudget(budgetDifference);
+        int price = pet.calculatePrice();
+        if (user.getBudget() > price && pet.getOwner() == null) {
+            user.setBudget(user.getBudget() - price);
             pet.setOwner(user);
             petRepository.save(pet);
-            System.out.println("Meow, cat " + pet.getName() + " has owner " + user.getFirstName());
-            return true;
-        } else {
-            System.out.println("Unable to buy cat.");
-            return false;
-        }
-    }
 
-    private boolean buyDog(User user, Pet pet) {
-        int budgetDifference = user.getBudget() - pet.getPrice();
-        if (budgetDifference >= 0 && pet.getOwner() == null) {
-            user.setBudget(budgetDifference);
-            pet.setOwner(user);
-            petRepository.save(pet);
-            System.out.println("Woof, dog " + pet.getName() + " has owner " + user.getFirstName());
+            if (pet instanceof Cat) {
+                System.out.println("Meow, cat " + pet.getName() + " has owner " + user.getFirstName());
+            } else if (pet instanceof Dog) {
+                System.out.println("Woof, dog " + pet.getName() + " has owner " + user.getFirstName());
+            } else {
+                System.out.println(user + " bought " + pet);
+            }
+
             return true;
         } else {
-            System.out.println("Unable to buy dog.");
+            System.out.println(user + " unable to buy " + pet);
             return false;
         }
     }
